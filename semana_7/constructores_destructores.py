@@ -1,10 +1,10 @@
 
 #Programa para realizar construcción de objetos.
-class Animal:
-    def __init__(self, gato):
+class Archivo:
+    def __init__(self, carpeta):
         """Constructor que inicializa el objeto y abre el archivo."""
-        self.gato = gato
-        self.file = open(gato, 'w')  # Abrimos el archivo en modo escritura
+        self.carpeta = carpeta
+        self.file = open(carpeta, 'w')  # Abrimos el archivo en modo escritura
 
     def write_data(self, data):
         """Método para escribir datos en el archivo."""
@@ -14,13 +14,13 @@ class Animal:
         """Destructor que se activa cuando el objeto es eliminado."""
         if hasattr(self, 'file'):
             self.file.close()  # Cerramos el archivo si aún está abierto
-            print(f"Archivo '{self.gato}' cerrado correctamente.")
+            print(f"Archivo '{self.carpeta}' cerrado correctamente.")
 
 
-# Ejemplo de uso de la clase Animal
+# Ejemplo de uso de la clase Archivo
 if __name__ == "__main__":
-    # Creamos una instancia de Animal
-    handler = Animal("gato")
+    # Creamos una instancia de Archivo
+    handler = Archivo("Carpeta")
 
     # Escribimos datos en el archivo
     handler.write_data("Hola, mundo!\n")

@@ -1,132 +1,325 @@
+""" Desarrollar un sistema para gestionar una biblioteca digital."""
+
+
+# Clase Libro: representar un libro con atributos título, autor, categoría e ISBN
+
 class Libro:
+
     def __init__(self, titulo, autor, categoria, isbn):
-        # Utilizamos tuplas para título y autor ya que son inmutables
-        self.titulo = titulo
-        self.autor = autor
+        self._titulo_autor = (titulo, autor)  # Tupla para título y autor, inmutable
+
         self.categoria = categoria
+
         self.isbn = isbn
 
-    def __repr__(self):
-        return f"Libro(titulo={self.titulo}, autor={self.autor}, categoria={self.categoria}, isbn={self.isbn})"
+    @property
+    def titulo(self):
+        return self._titulo_autor[0]
 
+    @property
+    def autor(self):
+        return self._titulo_autor[1]
+
+    def __str__(self):
+        return f"{self.titulo} por {self.autor} (Categoría: {self.categoria}, ISBN: {self.isbn})"
+
+
+# Clase Usuario: representa a un usuario con ID único, nombre y lista de libros prestados
 
 class Usuario:
-    def __init__(self, nombre, id_usuario):
-        self.nombre = nombre
+
+    def __init__(self, id_usuario, nombre):
         self.id_usuario = id_usuario
+
+        self.nombre = nombre
+
         self.libros_prestados = []
 
+        # Lista para agreagr los libros prestados
+
+    # Creamos el Método para añadir un libro a la lista de préstamos
+
     def prestar_libro(self, libro):
-        if libro not in self.libros_prestados:
-            self.libros_prestados.append(libro)
+        self.libros_prestados.append(libro)
+
+    # Método para devolver un libro
 
     def devolver_libro(self, libro):
-        if libro in self.libros_prestados:
-            self.libros_prestados.remove(libro)
+        self.libros_prestados.remove(libro)
 
-    def listar_libros_prestados(self):
-        return self.libros_prestados
+    def __str__(self):
+        return f"Usuario: {self.nombre} (ID: {self.id_usuario})"
 
-    def __repr__(self):
-        return f"Usuario(nombre={self.nombre}, id_usuario={self.id_usuario})"
 
+# Clase Biblioteca: gestiona libros, usuarios y préstamos
 
 class Biblioteca:
-    def __init__(self):
-        self.libros = {}  # Diccionario con ISBN como clave
-        self.usuarios = set()  # Conjunto de IDs de usuario únicos
 
-    def añadir_libro(self, libro):
-        if libro.isbn not in self.libros:
-            self.libros[libro.isbn] = libro
+    def __init__(self):
+
+        self.libros_disponibles = {}  # Diccionario para almacenar libros (ISBN -> Libro)
+
+        self.usuarios_registrados = {}  # Diccionario para usuarios (ID usuario -> Usuario)
+
+        self.libros_prestados = {}  # Diccionario para préstamos (ISBN -> ID usuario)
+
+    # Método para añadir un libro
+
+    def anadir_libro(self, libro):
+
+        if libro.isbn not in self.libros_disponibles:
+
+            self.libros_disponibles[libro.isbn] = libro
+
+            print(f"Libro añadido: {libro}")
+
+        else:
+
+            print(f"El libro con ISBN {libro.isbn} ya está en la biblioteca.")
+
+    # Método para quitar un libro
 
     def quitar_libro(self, isbn):
-        if isbn in self.libros:
-            del self.libros[isbn]
+
+        if isbn in self.libros_disponibles:
+
+            del self.libros_disponibles[isbn]
+
+            print(f"Libro con ISBN {isbn} eliminado.")
+
+        else:
+
+            print(f"No se encontró el libro con ISBN {isbn}.")
+
+    # Método para registrar un usuario
 
     def registrar_usuario(self, usuario):
-        if usuario.id_usuario not in [u.id_usuario for u in self.usuarios]:
-            self.usuarios.add(usuario)
+
+        if usuario.id_usuario not in self.usuarios_registrados:
+
+            self.usuarios_registrados[usuario.id_usuario] = usuario
+
+            print(f"Usuario registrado: {usuario}")
+
+        else:
+
+            print(f"El usuario con ID {usuario.id_usuario} ya está registrado.")
+
+    # Método para dar de baja a un usuario
 
     def dar_baja_usuario(self, id_usuario):
-        self.usuarios = {u for u in self.usuarios if u.id_usuario != id_usuario}
+
+        if id_usuario in self.usuarios_registrados:
+
+            del self.usuarios_registrados[id_usuario]
+
+            print(f"Usuario con ID {id_usuario} dado de baja.")
+
+        else:
+
+            print(f"No se encontró al usuario con ID {id_usuario}.")
+
+    # Método para prestar un libro
 
     def prestar_libro(self, isbn, id_usuario):
-        if isbn in self.libros:
-            libro = self.libros[isbn]
-            usuario = next((u for u in self.usuarios if u.id_usuario == id_usuario), None)
-            if usuario:
-                usuario.prestar_libro(libro)
-                return f"El libro '{libro.titulo}' ha sido prestado a {usuario.nombre}."
-            else:
-                return "Usuario no registrado."
-        else:
-            return "Libro no disponible."
+
+        if isbn not in self.libros_disponibles:
+            print(f"El libro con ISBN {isbn} no está disponible.")
+
+            return
+
+        if id_usuario not in self.usuarios_registrados:
+            print(f"El usuario con ID {id_usuario} no está registrado.")
+
+            return
+
+        if isbn in self.libros_prestados:
+            print(f"El libro con ISBN {isbn} ya está prestado.")
+
+            return
+
+        libro = self.libros_disponibles[isbn]
+
+        usuario = self.usuarios_registrados[id_usuario]
+
+        usuario.prestar_libro(libro)
+
+        self.libros_prestados[isbn] = id_usuario
+
+        print(f"Libro prestado: {libro} al usuario {usuario.nombre}")
+
+    # Método para devolver un libro
 
     def devolver_libro(self, isbn, id_usuario):
-        if isbn in self.libros:
-            libro = self.libros[isbn]
-            usuario = next((u for u in self.usuarios if u.id_usuario == id_usuario), None)
-            if usuario:
-                usuario.devolver_libro(libro)
-                return f"El libro '{libro.titulo}' ha sido devuelto por {usuario.nombre}."
-            else:
-                return "Usuario no registrado."
-        else:
-            return "Libro no disponible."
+
+        if isbn not in self.libros_prestados:
+            print(f"El libro con ISBN {isbn} no está prestado.")
+
+            return
+
+        if self.libros_prestados[isbn] != id_usuario:
+            print(f"El libro con ISBN {isbn} no está prestado al usuario con ID {id_usuario}.")
+
+            return
+
+        usuario = self.usuarios_registrados[id_usuario]
+
+        libro = self.libros_disponibles[isbn]
+
+        usuario.devolver_libro(libro)
+
+        del self.libros_prestados[isbn]
+
+        print(f"Libro devuelto: {libro} por el usuario {usuario.nombre}")
+
+    # Método para buscar libros
 
     def buscar_libro(self, criterio, valor):
-        resultado = []
-        for libro in self.libros.values():
-            if (criterio == 'titulo' and valor.lower() in libro.titulo.lower()) or \
-               (criterio == 'autor' and valor.lower() in libro.autor.lower()) or \
-               (criterio == 'categoria' and valor.lower() in libro.categoria.lower()):
-                resultado.append(libro)
-        return resultado
+
+        resultados = [libro for libro in self.libros_disponibles.values() if getattr(libro, criterio) == valor]
+
+        if resultados:
+
+            print(f"Libros encontrados con {criterio}: {valor}")
+
+            for libro in resultados:
+                print(libro)
+
+        else:
+
+            print(f"No se encontraron libros con {criterio}: {valor}")
+
+    # Método para listar libros prestados
 
     def listar_libros_prestados(self, id_usuario):
-        usuario = next((u for u in self.usuarios if u.id_usuario == id_usuario), None)
-        if usuario:
-            return usuario.listar_libros_prestados()
+
+        if id_usuario in self.usuarios_registrados:
+
+            usuario = self.usuarios_registrados[id_usuario]
+
+            if usuario.libros_prestados:
+
+                print(f"Libros prestados a {usuario.nombre}:")
+
+                for libro in usuario.libros_prestados:
+                    print(libro)
+
+            else:
+
+                print(f"El usuario {usuario.nombre} no tiene libros prestados.")
+
         else:
-            return "Usuario no registrado."
 
-    def __repr__(self):
-        return f"Biblioteca(libros={self.libros}, usuarios={self.usuarios})"
+            print(f"No se encontró al usuario con ID {id_usuario}.")
 
 
-# Pruebas del sistema
+# Función principal para la interacción del usuario
 
-# Crear una biblioteca
-biblioteca = Biblioteca()
+def menu():
+    biblioteca = Biblioteca()
 
-# Añadir libros
-libro1 = Libro("El Principito", "Antoine de Saint-Exupéry", "Ficción", "1234567890")
-libro2 = Libro("1984", "George Orwell", "Distopía", "0987654321")
-biblioteca.añadir_libro(libro1)
-biblioteca.añadir_libro(libro2)
+    while True:
 
-# Registrar usuarios
-usuario1 = Usuario("Juan Pérez", "u001")
-usuario2 = Usuario("Ana Gómez", "u002")
-biblioteca.registrar_usuario(usuario1)
-biblioteca.registrar_usuario(usuario2)
+        print("\n- Menú de Biblioteca -")
 
-# Prestar libros
-print(biblioteca.prestar_libro("1234567890", "u001"))  # Debería ser exitoso
-print(biblioteca.prestar_libro("0987654321", "u002"))  # Debería ser exitoso
+        print("1. Añadir un libro")
 
-# Listar libros prestados
-print(usuario1.listar_libros_prestados())  # Debería mostrar "El Principito"
-print(usuario2.listar_libros_prestados())  # Debería mostrar "1984"
+        print("2. Quitar un libro")
 
-# Devolver libros
-print(biblioteca.devolver_libro("1234567890", "u001"))  # Debería ser exitoso
+        print("3. Registrar un usuario")
 
-# Buscar libros
-print(biblioteca.buscar_libro('titulo', "1984"))  # Debería mostrar "1984"
-print(biblioteca.buscar_libro('autor', "Saint-Exupéry"))  # Debería mostrar "El Principito"
-print(biblioteca.buscar_libro('categoria', "Distopía"))  # Debería mostrar "1984"
+        print("4. Dar de baja un usuario")
 
-# Listar libros prestados después de devolver
-print(usuario1.listar_libros_prestados())  # Debería estar vacío ahora
+        print("5. Prestar un libro")
+
+        print("6. Devolver un libro")
+
+        print("7. Buscar un libro")
+
+        print("8. Número de lista de libros prestados")
+
+        print("9. Salir")
+
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+
+            titulo = input("Ingrese el título del libro: ")
+
+            autor = input("Ingrese el autor del libro: ")
+
+            categoria = input("Ingrese la categoría del libro: ")
+
+            isbn = input("Ingrese el ISBN del libro: ")
+
+            libro = Libro(titulo, autor, categoria, isbn)
+
+            biblioteca.anadir_libro(libro)
+
+        elif opcion == "2":
+
+            isbn = input("Ingrese el ISBN del libro para quitar: ")
+
+            biblioteca.quitar_libro(isbn)
+
+        elif opcion == "3":
+
+            id_usuario = input("Ingrese el ID del usuario: ")
+
+            nombre = input("Ingrese el nombre de usuario: ")
+
+            usuario = Usuario(id_usuario, nombre)
+
+            biblioteca.registrar_usuario(usuario)
+
+        elif opcion == "4":
+
+            id_usuario = input("Ingrese el ID del usuario para dar de baja: ")
+
+            biblioteca.dar_baja_usuario(id_usuario)
+
+        elif opcion == "5":
+
+            isbn = input("Ingrese el ISBN del libro a prestar: ")
+
+            id_usuario = input("Ingrese el ID del usuario: ")
+
+            biblioteca.prestar_libro(isbn, id_usuario)
+
+        elif opcion == "6":
+
+            isbn = input("Ingrese el ISBN del libro a devolver: ")
+
+            id_usuario = input("Ingrese el ID del usuario: ")
+
+            biblioteca.devolver_libro(isbn, id_usuario)
+
+        elif opcion == "7":
+
+            criterio = input("Buscar por 'titulo', 'autor' o 'categoria': ")
+
+            valor = input(f"Ingrese el {criterio} a buscar: ")
+
+            biblioteca.buscar_libro(criterio, valor)
+
+        elif opcion == "8":
+
+            id_usuario = input("Ingrese el ID de usuario: ")
+
+            biblioteca.listar_libros_prestados(id_usuario)
+
+        elif opcion == "9":
+
+            print("ha salido exitosamente del sistema.")
+
+            break
+
+        else:
+
+            print("Opción inválida. Intente nuevamente.")
+
+
+# Ejecutar el menú de la biblioteca
+
+menu()
+

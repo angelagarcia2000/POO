@@ -10,5 +10,11 @@
         "nombre": "celular",
         "cantidad": 2,
         "precio": 80.0
+    },
+    "3": {
+        "id_producto": "3",
+        "nombre": "carne",
+        "cantidad": 5,
+        "precio": 20.0
     }
 }

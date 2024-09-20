@@ -1,0 +1,14 @@
+{
+    "1": {
+        "id_producto": "1",
+        "nombre": "li",
+        "cantidad": 5,
+        "precio": 1.0
+    },
+    "2": {
+        "id_producto": "2",
+        "nombre": "celular",
+        "cantidad": 2,
+        "precio": 80.0
+    }
+}

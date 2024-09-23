@@ -5,7 +5,7 @@ from tkcalendar import DateEntry  # Asegúrate de instalar tkcalendar: pip insta
 class EventManagerApp:
     def __init__(self, root):
         self.root = root
-        self.root.title("Gestor de Eventos")
+        self.root.title("Gestion de Eventos")
 
         # Frame para la lista de eventos
         self.frame_lista = ttk.Frame(self.root)

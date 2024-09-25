@@ -1,7 +1,6 @@
 import tkinter as tk
 from tkinter import ttk, messagebox
-from tkcalendar import DateEntry  # Asegúrate de instalar tkcalendar: pip install tkcalendar
-
+from tkcalendar import DateEntry
 class EventManagerApp:
     def __init__(self, root):
         self.root = root
